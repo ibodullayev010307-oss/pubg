@@ -1,0 +1,91 @@
+!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUBG UC Store - Click Pay</title>
+    <script src="https://telegram.org"></script>
+    <style>
+        body { font-family: sans-serif; background-color: #111; color: #fff; padding: 15px; margin: 0; }
+        .header { text-align: center; margin-bottom: 20px; }
+        h1 { color: #f39c12; margin: 0; }
+        .form-group { margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; box-sizing: border-box; background: #222; border: 1px solid #444; border-radius: 8px; color: #fff; font-size: 16px; }
+        .tariff-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
+        .tariff-card { background: #1e272e; padding: 15px; border-radius: 8px; text-align: center; border: 2px solid transparent; cursor: pointer; }
+        .tariff-card.active { border-color: #e67e22; background: #2f3640; }
+        .uc { font-size: 18px; font-weight: bold; color: #f1c40f; }
+        .price { font-size: 14px; color: #2ecc71; margin-top: 5px; font-weight: bold; }
+        .pay-btn { width: 100%; padding: 15px; background: #27ae60; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>💵 PUBG UC DO'KON (CLICK) 💵</h1>
+        <p>ID kiriting va tarifni tanlang</p>
+    </div>
+
+    <div class="form-group">
+        <label>PUBG Character ID:</label>
+        <input type="text" id="pubg_id" placeholder="Masalan: 5123456789">
+    </div>
+
+    <div class="tariff-grid" id="tariffs"></div>
+
+    <button class="pay-btn" onclick="sendOrder()">Click orqali to'lash</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        // Narxlar ro'yxati (Siz bergan aniq narxlar bo'yicha sof raqamda)
+        const items = [
+            { uc: "60 UC", price: "11.000", rawPrice: 11000 },
+            { uc: "120 UC", price: "22.000", rawPrice: 22000 },
+            { uc: "180 UC", price: "36.000", rawPrice: 36000 },
+            { uc: "325 UC", price: "56.000", rawPrice: 56000 },
+            { uc: "660 UC", price: "112.000", rawPrice: 112000 },
+            { uc: "720 UC", price: "123.000", rawPrice: 123000 },
+            { uc: "1800 UC", price: "278.000", rawPrice: 278000 },
+            { uc: "2125 UC", price: "335.000", rawPrice: 335000 },
+            { uc: "5650 UC", price: "836.500", rawPrice: 836500 },
+            { uc: "8100 UC", price: "1.085.000", rawPrice: 1085000 },
+            { uc: "16200 UC", price: "2.170.000", rawPrice: 2170000 },
+            { uc: "24300 UC", price: "3.255.000", rawPrice: 3255000 },
+            { uc: "32400 UC", price: "4.340.000", rawPrice: 4340000 }
+        ];
+
+        let selectedIndex = null;
+        const grid = document.getElementById('tariffs');
+
+        items.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'tariff-card';
+            card.onclick = () => {
+                document.querySelectorAll('.tariff-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                selectedIndex = index;
+            };
+            card.innerHTML = `<div class="uc">💵 ${item.uc}</div><div class="price">${item.price} UZS ✅</div>`;
+            grid.appendChild(card);
+        });
+
+        function sendOrder() {
+            const pubgId = document.getElementById('pubg_id').value.trim();
+            if (!pubgId) return alert("PUBG ID kiriting!");
+            if (selectedIndex === null) return alert("Tarif tanlang!");
+
+            const selected = items[selectedIndex];
+            
+            // Bot to'lov chekini shakllantirishi uchun ma'lumotni yuboramiz
+            tg.sendData(JSON.stringify({
+                tariff: selected.uc,
+                price: selected.rawPrice,
+                pubg_id: pubgId
+            }));
+            tg.close();
+        }
+    </script>
+</body>
+</html>
